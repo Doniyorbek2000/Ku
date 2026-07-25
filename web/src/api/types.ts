@@ -68,3 +68,25 @@ export interface PurchaseStatusResult {
   status: 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
   expiresAt: string;
 }
+
+// ---- Admin ----
+export interface AdminStats {
+  organizations: number;
+  customers: number;
+  completedPurchases: number;
+  totalCashbackEarned: number;
+  totalCashbackRedeemed: number;
+}
+
+export interface AdminOrganization {
+  id: string;
+  name: string;
+  slug: string;
+  category: string | null;
+  cashbackType: 'PERCENT' | 'FIXED';
+  cashbackValue: number;
+  isActive: boolean;
+  createdAt: string;
+  owner: { id: string; name: string; email: string | null };
+  _count: { purchases: number; staff: number };
+}

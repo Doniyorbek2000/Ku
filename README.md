@@ -24,8 +24,8 @@ xaridorga **5 000 so'm** keshbek qaytadi va balansida ko'rinadi.
 | **Backend API** | Barcha qismlar uchun yagona yadro | Node.js + TypeScript + Express + Prisma | ✅ MVP tayyor |
 | **Mobil ilova** | Xaridorlar (QR skanerlash, balans) | React Native (Expo) | ✅ MVP tayyor |
 | **Web panel** | Tashkilotlar (kassir, statistika) | React + Vite | ✅ MVP tayyor |
+| **Admin panel** | Super admin (tashkilotlar qo'shish) | Web panel ichida | ✅ MVP tayyor |
 | **Desktop (.exe)** | Tashkilotlar (offline kassa) | Electron (web panelni o'raydi) | 🔜 Keyingi bosqich |
-| **Admin panel** | Super admin (tashkilotlar qo'shish) | Web panel ichida | 🔜 Keyingi bosqich |
 
 ## Rollar
 
@@ -73,6 +73,6 @@ Web panel: [`web/README.md`](web/README.md)
 - [x] **1-bosqich** — Backend API (auth, tashkilotlar, keshbek, hamyon, QR oqimi)
 - [x] **2-bosqich** — Mobil ilova (Expo): ro'yxatdan o'tish, QR skaner, balans, tarix
 - [x] **3-bosqich** — Web panel: kassir QR ekrani, ega statistikasi, kassirlar, keshbek sozlamalari
-- [ ] **3b-bosqich** — Admin panel (super admin): tashkilotlar qo'shish/tasdiqlash
+- [x] **3b-bosqich** — Admin panel (super admin): tashkilotlar qo'shish/tasdiqlash, platforma statistikasi
 - [ ] **4-bosqich** — Desktop (.exe) Electron build
 - [ ] **5-bosqich** — O'sish mexanizmlari: referral, darajalar, push-bildirishnoma, aksiyalar

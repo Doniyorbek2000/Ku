@@ -1,12 +1,15 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Login } from '@/pages/Login';
-import { Layout } from '@/components/Layout';
+import { Layout, adminLinks } from '@/components/Layout';
 import { CashierPage } from '@/pages/cashier/CashierPage';
 import { Dashboard } from '@/pages/owner/Dashboard';
 import { Settings } from '@/pages/owner/Settings';
 import { Cashiers } from '@/pages/owner/Cashiers';
 import { Purchases } from '@/pages/owner/Purchases';
+import { AdminDashboard } from '@/pages/admin/AdminDashboard';
+import { Organizations } from '@/pages/admin/Organizations';
+import { AddOrganization } from '@/pages/admin/AddOrganization';
 
 export function App() {
   const { user, loading } = useAuth();
@@ -52,11 +55,24 @@ export function App() {
     );
   }
 
-  // Boshqa rollar (admin/xaridor) bu panelga tegishli emas
+  if (user.role === 'SUPER_ADMIN') {
+    return (
+      <Routes>
+        <Route element={<Layout links={adminLinks} brand="Ku · Admin" />}>
+          <Route path="/" element={<AdminDashboard />} />
+          <Route path="/organizations" element={<Organizations />} />
+          <Route path="/organizations/new" element={<AddOrganization />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
+  }
+
+  // Xaridor bu panelga tegishli emas (u mobil ilovadan foydalanadi)
   return (
     <div className="auth-wrap">
       <div className="card auth-card center">
-        <p>Bu panel faqat kassir va tashkilot egalari uchun.</p>
+        <p>Bu panel tashkilotlar va admin uchun. Xaridorlar mobil ilovadan foydalanadi.</p>
       </div>
     </div>
   );
