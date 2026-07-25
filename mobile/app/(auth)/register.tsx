@@ -12,6 +12,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +24,7 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await register(name.trim(), phone.trim(), password);
+      await register(name.trim(), phone.trim(), password, referralCode.trim() || undefined);
       router.replace('/(tabs)');
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Xatolik yuz berdi');
@@ -55,6 +56,13 @@ export default function Register() {
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+            />
+            <Input
+              label="Taklif kodi (ixtiyoriy)"
+              placeholder="Masalan: KUALI01"
+              autoCapitalize="characters"
+              value={referralCode}
+              onChangeText={setReferralCode}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Button title="Ro‘yxatdan o‘tish" onPress={onSubmit} loading={loading} />

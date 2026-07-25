@@ -1,5 +1,9 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { prisma } from '../../lib/prisma.js';
+import { Errors } from '../../lib/errors.js';
+import { tierForSpend, nextTier, TIERS } from '../../lib/growth.js';
+import { validate } from '../../middleware/validate.js';
 import { authenticate, authorize } from '../../middleware/auth.js';
 import { asyncHandler } from '../../middleware/error.js';
 
@@ -43,5 +47,47 @@ walletRouter.get(
       take,
     });
     res.json({ transactions: txns });
+  }),
+);
+
+// Bonus va daraja ma'lumoti (referral, tier, "Ku bonus")
+walletRouter.get(
+  '/rewards',
+  asyncHandler(async (req, res) => {
+    const user = await prisma.user.findUnique({ where: { id: req.user!.sub } });
+    if (!user) throw Errors.notFound('Foydalanuvchi topilmadi');
+
+    const tier = tierForSpend(user.lifetimeSpend);
+    const next = nextTier(user.lifetimeSpend);
+    const referralCount = await prisma.user.count({ where: { referredById: user.id } });
+    const events = await prisma.bonusEvent.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+    });
+
+    res.json({
+      bonusPoints: user.bonusPoints,
+      referralCode: user.referralCode,
+      referralCount,
+      lifetimeSpend: user.lifetimeSpend,
+      tier: { key: tier.key, name: tier.name, bonusRate: tier.bonusRate },
+      nextTier: next ? { name: next.tier.name, remaining: next.remaining } : null,
+      allTiers: TIERS.map((t) => ({ key: t.key, name: t.name, minSpend: t.minSpend, bonusRate: t.bonusRate })),
+      events,
+    });
+  }),
+);
+
+// Expo push tokenini saqlash (kelajakdagi push-bildirishnomalar uchun)
+walletRouter.post(
+  '/push-token',
+  validate(z.object({ token: z.string().min(1) })),
+  asyncHandler(async (req, res) => {
+    await prisma.user.update({
+      where: { id: req.user!.sub },
+      data: { expoPushToken: (req.body as { token: string }).token },
+    });
+    res.json({ ok: true });
   }),
 );

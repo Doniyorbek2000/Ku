@@ -127,6 +127,14 @@ export default function Scan() {
             {phase.result.redeemed > 0 ? (
               <Text style={styles.muted}>Ishlatildi: {sum(phase.result.redeemed)}</Text>
             ) : null}
+            {phase.result.tierBonus > 0 ? (
+              <Text style={styles.muted}>
+                Daraja bonusi ({phase.result.tier}): +{sum(phase.result.tierBonus)}
+              </Text>
+            ) : null}
+            {phase.result.referralBonus > 0 ? (
+              <Text style={styles.muted}>Taklif bonusi: +{sum(phase.result.referralBonus)}</Text>
+            ) : null}
             <Text style={styles.muted}>{phase.org}</Text>
             <Text style={[styles.rowLine, { marginTop: spacing.sm }]}>
               Yangi balans: <Text style={styles.bold}>{sum(phase.result.newBalance)}</Text>

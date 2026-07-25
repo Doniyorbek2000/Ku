@@ -7,6 +7,7 @@ import { Dashboard } from '@/pages/owner/Dashboard';
 import { Settings } from '@/pages/owner/Settings';
 import { Cashiers } from '@/pages/owner/Cashiers';
 import { Purchases } from '@/pages/owner/Purchases';
+import { Promotions } from '@/pages/owner/Promotions';
 import { AdminDashboard } from '@/pages/admin/AdminDashboard';
 import { Organizations } from '@/pages/admin/Organizations';
 import { AddOrganization } from '@/pages/admin/AddOrganization';
@@ -48,6 +49,7 @@ export function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/cashiers" element={<Cashiers />} />
           <Route path="/purchases" element={<Purchases />} />
+          <Route path="/promotions" element={<Promotions />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

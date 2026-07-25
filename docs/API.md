@@ -55,6 +55,24 @@ yoki `/api/auth/register` dan olinadi. Barcha pul qiymatlari **butun son (so'm)*
 |-------|------|--------|
 | GET | `/api/wallet` | Barcha tashkilotlardagi balanslar + umumiy summa |
 | GET | `/api/wallet/transactions?organizationId=&limit=` | Tranzaksiya tarixi |
+| GET | `/api/wallet/rewards` | Bonus ballari, daraja, referral kod va bonus tarixi |
+| POST | `/api/wallet/push-token` | Expo push tokenini saqlash `{ token }` |
+
+## O'sish mexanizmlari
+
+| Mexanizm | Qanday ishlaydi |
+|----------|-----------------|
+| **Referral** | Ro'yxatdan o'tishda `referralCode` beriladi. Taklif qilingan mijoz **birinchi xaridini** qilganda taklif qilganga +10 000, o'ziga +5 000 bonus ball. |
+| **Darajalar** | Umumiy xaridga qarab: Bronza → Kumush (1M, +10%) → Oltin (5M, +20%) → Platina (20M, +30%). Har xariddan keshbekning shu ulushi qo'shimcha bonus ball bo'ladi. |
+| **Aksiyalar** | Tashkilot `POST /api/org/promotions` orqali muddatli oshirilgan keshbek belgilaydi — xarid yaratilganda faol aksiya narxi qo'llanadi. |
+
+### Tashkilot aksiyalari (ORG_OWNER)
+
+| Metod | Yo'l | Tavsif |
+|-------|------|--------|
+| GET | `/api/org/promotions` | Aksiyalar ro'yxati |
+| POST | `/api/org/promotions` | Aksiya yaratish `{ title, cashbackType, cashbackValue, startsAt, endsAt }` |
+| PATCH | `/api/org/promotions/:id/active` | Aksiyani yoqish/o'chirish `{ isActive }` |
 
 ## To'liq oqim (misol)
 

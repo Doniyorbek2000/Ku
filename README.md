@@ -27,6 +27,13 @@ xaridorga **5 000 so'm** keshbek qaytadi va balansida ko'rinadi.
 | **Admin panel** | Super admin (tashkilotlar qo'shish) | Web panel ichida | ✅ MVP tayyor |
 | **Desktop (.exe)** | Tashkilotlar (offline kassa) | Electron (web panelni o'raydi) | 🔜 Keyingi bosqich |
 
+## O'sish mexanizmlari (mijozlar oqimini kuchaytirish)
+
+- 🎁 **Referral** — har mijozda taklif kodi. Do'st kod bilan ro'yxatdan o'tib birinchi xaridini qilsa: taklif qilganga **+10 000**, o'ziga **+5 000** "Ku bonus" ball.
+- 🏆 **Darajalar** — umumiy xaridga qarab: Bronza → Kumush (1M, +10%) → Oltin (5M, +20%) → Platina (20M, +30%). Har xariddan qo'shimcha bonus.
+- 🔥 **Aksiyalar** — tashkilot muddatli oshirilgan keshbek belgilaydi (masalan hafta oxiri 20%).
+- 🔔 **Push tokeni** — mobil ilova push tokenini saqlaydi (bildirishnoma yuborish keyingi bosqichda).
+
 ## Rollar
 
 - **SUPER_ADMIN** — platformani boshqaradi, tashkilotlar qo'shadi/tasdiqlaydi
@@ -74,5 +81,5 @@ Web panel: [`web/README.md`](web/README.md)
 - [x] **2-bosqich** — Mobil ilova (Expo): ro'yxatdan o'tish, QR skaner, balans, tarix
 - [x] **3-bosqich** — Web panel: kassir QR ekrani, ega statistikasi, kassirlar, keshbek sozlamalari
 - [x] **3b-bosqich** — Admin panel (super admin): tashkilotlar qo'shish/tasdiqlash, platforma statistikasi
-- [ ] **4-bosqich** — Desktop (.exe) Electron build
-- [ ] **5-bosqich** — O'sish mexanizmlari: referral, darajalar, push-bildirishnoma, aksiyalar
+- [x] **4-bosqich** — O'sish mexanizmlari: referral (do'st taklif), darajalar (Bronza→Platina), aksiyalar; push tokeni saqlanadi
+- [ ] **5-bosqich** — Desktop (.exe) Electron build; push-bildirishnomalarni haqiqiy yuborish

@@ -10,6 +10,7 @@ export interface NavItem {
 const ownerLinks: NavItem[] = [
   { to: '/', label: 'Boshqaruv', end: true },
   { to: '/purchases', label: 'Xaridlar', end: false },
+  { to: '/promotions', label: 'Aksiyalar', end: false },
   { to: '/cashiers', label: 'Kassirlar', end: false },
   { to: '/settings', label: 'Sozlamalar', end: false },
 ];

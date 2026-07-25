@@ -157,3 +157,52 @@ orgRouter.get(
     res.json({ purchases });
   }),
 );
+
+// ---- Aksiyalar (promotion) ----
+orgRouter.get(
+  '/promotions',
+  asyncHandler(async (req, res) => {
+    const promotions = await prisma.promotion.findMany({
+      where: { organizationId: orgId(req) },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json({ promotions });
+  }),
+);
+
+const promoSchema = z.object({
+  title: z.string().min(2),
+  cashbackType: z.enum(['PERCENT', 'FIXED']),
+  cashbackValue: z.number().nonnegative(),
+  startsAt: z.coerce.date(),
+  endsAt: z.coerce.date(),
+});
+
+orgRouter.post(
+  '/promotions',
+  validate(promoSchema),
+  asyncHandler(async (req, res) => {
+    const b = req.body as z.infer<typeof promoSchema>;
+    if (b.endsAt <= b.startsAt) throw Errors.badRequest('Tugash sanasi boshlanishdan keyin bo‘lishi kerak');
+    const promo = await prisma.promotion.create({
+      data: { ...b, organizationId: orgId(req), isActive: true },
+    });
+    res.status(201).json({ promotion: promo });
+  }),
+);
+
+orgRouter.patch(
+  '/promotions/:id/active',
+  validate(z.object({ isActive: z.boolean() })),
+  asyncHandler(async (req, res) => {
+    const promo = await prisma.promotion.findFirst({
+      where: { id: req.params.id, organizationId: orgId(req) },
+    });
+    if (!promo) throw Errors.notFound('Aksiya topilmadi');
+    const updated = await prisma.promotion.update({
+      where: { id: promo.id },
+      data: { isActive: (req.body as { isActive: boolean }).isActive },
+    });
+    res.json({ promotion: updated });
+  }),
+);

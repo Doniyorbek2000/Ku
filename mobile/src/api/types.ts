@@ -55,4 +55,33 @@ export interface ClaimResult {
   redeemed: number;
   netPayable: number;
   newBalance: number;
+  tierBonus: number;
+  referralBonus: number;
+  tier: string;
+}
+
+export interface TierInfo {
+  key: string;
+  name: string;
+  minSpend: number;
+  bonusRate: number;
+}
+
+export interface BonusEvent {
+  id: string;
+  type: 'REFERRAL_INVITER' | 'REFERRAL_INVITEE' | 'TIER';
+  points: number;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface RewardsResponse {
+  bonusPoints: number;
+  referralCode: string | null;
+  referralCount: number;
+  lifetimeSpend: number;
+  tier: { key: string; name: string; bonusRate: number };
+  nextTier: { name: string; remaining: number } | null;
+  allTiers: TierInfo[];
+  events: BonusEvent[];
 }

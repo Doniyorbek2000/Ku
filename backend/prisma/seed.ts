@@ -52,11 +52,17 @@ async function main() {
     },
   });
 
-  // 4) Xaridor
-  await prisma.user.upsert({
+  // 4) Xaridor (referral kodi bilan)
+  const customer = await prisma.user.upsert({
     where: { phone: '+998901234567' },
     update: {},
-    create: { name: 'Xaridor Ali', phone: '+998901234567', role: 'CUSTOMER', passwordHash: pass },
+    create: {
+      name: 'Xaridor Ali',
+      phone: '+998901234567',
+      role: 'CUSTOMER',
+      passwordHash: pass,
+      referralCode: 'KUALI01',
+    },
   });
 
   console.log('✅ Demo ma‘lumotlar tayyor:');
@@ -64,6 +70,7 @@ async function main() {
   console.log('   Ega:     owner@dokon.uz / parol123');
   console.log('   Kassir:  kassir@dokon.uz / parol123');
   console.log('   Xaridor: +998901234567 / parol123');
+  console.log(`   Xaridor taklif kodi: ${customer.referralCode}`);
   console.log(`   Tashkilot: ${org.name} (${org.cashbackValue}% keshbek)`);
   console.log(`   Admin ID: ${admin.id}`);
 }

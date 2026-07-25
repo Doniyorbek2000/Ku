@@ -5,6 +5,11 @@ import { prisma } from '../../lib/prisma.js';
 import { Errors } from '../../lib/errors.js';
 import { env } from '../../config/env.js';
 import { computeCashback } from '../../lib/cashback.js';
+import {
+  tierForSpend,
+  REFERRAL_INVITER_POINTS,
+  REFERRAL_INVITEE_POINTS,
+} from '../../lib/growth.js';
 import { validate } from '../../middleware/validate.js';
 import { authenticate, authorize } from '../../middleware/auth.js';
 import { asyncHandler } from '../../middleware/error.js';
@@ -34,7 +39,14 @@ purchaseRouter.post(
     const org = await prisma.organization.findUnique({ where: { id: orgId } });
     if (!org || !org.isActive) throw Errors.forbidden('Tashkilot faol emas');
 
-    const cashbackAmount = computeCashback(org, b.amount);
+    // Faol aksiya bo'lsa, uning keshbek qoidasi qo'llanadi
+    const now = new Date();
+    const promo = await prisma.promotion.findFirst({
+      where: { organizationId: orgId, isActive: true, startsAt: { lte: now }, endsAt: { gte: now } },
+      orderBy: { cashbackValue: 'desc' },
+    });
+
+    const cashbackAmount = computeCashback(org, b.amount, promo);
     const expiresAt = new Date(Date.now() + env.purchaseQrTtlMinutes * 60_000);
 
     const purchase = await prisma.purchase.create({
@@ -161,7 +173,65 @@ purchaseRouter.post(
         },
       });
 
-      return { purchase: updated, earn, redeem, balance };
+      // ---- O'sish mexanizmlari: daraja va referral bonuslari ----
+      const customer = await tx.user.findUnique({ where: { id: customerId } });
+      const newSpend = (customer?.lifetimeSpend ?? 0) + purchase.amount;
+      const tier = tierForSpend(newSpend);
+      const tierBonus = Math.floor(earn * tier.bonusRate);
+
+      // Bu xaridorning birinchi yakunlangan xaridimi?
+      const completedCount = await tx.purchase.count({
+        where: { customerId, status: 'COMPLETED' },
+      });
+      const isFirstPurchase = completedCount === 1;
+
+      let referralBonus = 0;
+      if (isFirstPurchase && customer?.referredById) {
+        // Taklif qilingan (invitee) bonusi
+        referralBonus = REFERRAL_INVITEE_POINTS;
+        await tx.bonusEvent.create({
+          data: {
+            userId: customerId,
+            type: 'REFERRAL_INVITEE',
+            points: REFERRAL_INVITEE_POINTS,
+            note: 'Taklif orqali ro‘yxatdan o‘tib birinchi xarid',
+          },
+        });
+        // Taklif qilgan (inviter) bonusi
+        await tx.user.update({
+          where: { id: customer.referredById },
+          data: { bonusPoints: { increment: REFERRAL_INVITER_POINTS } },
+        });
+        await tx.bonusEvent.create({
+          data: {
+            userId: customer.referredById,
+            type: 'REFERRAL_INVITER',
+            points: REFERRAL_INVITER_POINTS,
+            note: 'Do‘st taklif orqali qo‘shildi',
+          },
+        });
+      }
+
+      if (tierBonus > 0) {
+        await tx.bonusEvent.create({
+          data: {
+            userId: customerId,
+            type: 'TIER',
+            points: tierBonus,
+            note: `${tier.name} darajasi bonusi`,
+          },
+        });
+      }
+
+      await tx.user.update({
+        where: { id: customerId },
+        data: {
+          lifetimeSpend: newSpend,
+          bonusPoints: { increment: tierBonus + referralBonus },
+        },
+      });
+
+      return { purchase: updated, earn, redeem, balance, tierBonus, referralBonus, tier: tier.name };
     });
 
     res.json({
@@ -170,6 +240,9 @@ purchaseRouter.post(
       redeemed: result.redeem,
       netPayable: result.purchase.amount - result.redeem,
       newBalance: result.balance,
+      tierBonus: result.tierBonus,
+      referralBonus: result.referralBonus,
+      tier: result.tier,
     });
   }),
 );

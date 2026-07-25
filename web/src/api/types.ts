@@ -69,6 +69,17 @@ export interface PurchaseStatusResult {
   expiresAt: string;
 }
 
+export interface Promotion {
+  id: string;
+  title: string;
+  cashbackType: 'PERCENT' | 'FIXED';
+  cashbackValue: number;
+  startsAt: string;
+  endsAt: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
 // ---- Admin ----
 export interface AdminStats {
   organizations: number;

@@ -30,6 +30,15 @@ model User {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
 
+  // --- O'sish mexanizmlari ---
+  referralCode  String?  @unique // taklif kodi (har xaridorda)
+  referredById  String?  // kim taklif qilgan
+  referredBy    User?    @relation("Referrals", fields: [referredById], references: [id])
+  referrals     User[]   @relation("Referrals")
+  bonusPoints   Int      @default(0) // platforma bonusi (referral + daraja), "Ku bonus"
+  lifetimeSpend Int      @default(0) // umumiy xarid summasi (daraja uchun)
+  expoPushToken String?  // push-bildirishnoma uchun (kelajakda)
+
   // Kassir/ega qaysi tashkilotga tegishli
   organizationId String?
   organization   Organization? @relation("OrgStaff", fields: [organizationId], references: [id])
@@ -37,8 +46,39 @@ model User {
   ownedOrganizations Organization[] @relation("OrgOwner")
   wallets            Wallet[]
   transactions       Transaction[]
+  bonusEvents        BonusEvent[]
   purchasesAsCustomer Purchase[] @relation("PurchaseCustomer")
   purchasesAsCashier  Purchase[] @relation("PurchaseCashier")
+
+  @@index([organizationId])
+  @@index([referredById])
+}
+
+// Platforma bonusi jurnali (referral, daraja bonuslari)
+model BonusEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // REFERRAL_INVITER | REFERRAL_INVITEE | TIER
+  points    Int
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Tashkilot aksiyasi — belgilangan davrda oshirilgan keshbek
+model Promotion {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  title          String
+  cashbackType   String       @default("PERCENT") // PERCENT | FIXED
+  cashbackValue  Float
+  startsAt       DateTime
+  endsAt         DateTime
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
 
   @@index([organizationId])
 }
@@ -66,6 +106,7 @@ model Organization {
   purchases    Purchase[]
   wallets      Wallet[]
   transactions Transaction[]
+  promotions   Promotion[]
 
   createdAt DateTime @default(now())
 
