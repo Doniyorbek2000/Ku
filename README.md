@@ -22,7 +22,7 @@ xaridorga **5 000 so'm** keshbek qaytadi va balansida ko'rinadi.
 | Qism | Kim uchun | Texnologiya | Holat |
 |------|-----------|-------------|-------|
 | **Backend API** | Barcha qismlar uchun yagona yadro | Node.js + TypeScript + Express + Prisma | ✅ MVP tayyor |
-| **Mobil ilova** | Xaridorlar (QR skanerlash, balans) | React Native (Expo) | 🔜 Keyingi bosqich |
+| **Mobil ilova** | Xaridorlar (QR skanerlash, balans) | React Native (Expo) | ✅ MVP tayyor |
 | **Web panel** | Tashkilotlar (kassir, statistika) | React + Vite | 🔜 Keyingi bosqich |
 | **Desktop (.exe)** | Tashkilotlar (offline kassa) | Electron (web panelni o'raydi) | 🔜 Keyingi bosqich |
 | **Admin panel** | Super admin (tashkilotlar qo'shish) | Web panel ichida | 🔜 Keyingi bosqich |
@@ -45,13 +45,23 @@ npm run db:seed      # demo ma'lumotlar (admin, tashkilot, kassir, xaridor)
 npm run dev          # http://localhost:4000
 ```
 
+## Boshlash (Mobil ilova)
+
+```bash
+cd mobile
+cp .env.example .env       # EXPO_PUBLIC_API_URL ni backend manziliga sozlang
+npm install
+npm start                  # Expo Go bilan skanerlang
+```
+
 To'liq API hujjati: [`docs/API.md`](docs/API.md)
 Arxitektura: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+Mobil ilova: [`mobile/README.md`](mobile/README.md)
 
 ## Yo'l xaritasi (Roadmap)
 
 - [x] **1-bosqich** — Backend API (auth, tashkilotlar, keshbek, hamyon, QR oqimi)
-- [ ] **2-bosqich** — Mobil ilova (Expo): ro'yxatdan o'tish, QR skaner, balans, tarix
+- [x] **2-bosqich** — Mobil ilova (Expo): ro'yxatdan o'tish, QR skaner, balans, tarix
 - [ ] **3-bosqich** — Web panel: kassir ekrani, tashkilot statistikasi, admin
 - [ ] **4-bosqich** — Desktop (.exe) Electron build
 - [ ] **5-bosqich** — O'sish mexanizmlari: referral, darajalar, push-bildirishnoma, aksiyalar
