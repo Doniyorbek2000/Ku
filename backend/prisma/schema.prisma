@@ -1,0 +1,149 @@
+// Ku keshbek platformasi — ma'lumotlar bazasi sxemasi
+// Barcha pul qiymatlari BUTUN SON (so'm) sifatida saqlanadi — float xatolaridan holi.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Dev: SQLite. Prod uchun .env da DATABASE_URL ni postgresql ga o'zgartiring
+  // va bu yerda provider = "postgresql" qiling.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Eslatma: SQLite Prisma'da native enum'larni qo'llamaydi, shuning uchun
+// quyidagilar String sifatida saqlanadi. Ruxsat etilgan qiymatlar:
+//   Role:           SUPER_ADMIN | ORG_OWNER | CASHIER | CUSTOMER
+//   CashbackType:   PERCENT | FIXED
+//   PurchaseStatus: PENDING | COMPLETED | CANCELLED | EXPIRED
+//   TxnType:        EARN | REDEEM | ADJUST
+// Qiymatlar to'g'riligini dastur chegarasida Zod tekshiradi (src/lib/enums.ts).
+
+model User {
+  id           String   @id @default(cuid())
+  role         String   @default("CUSTOMER")
+  name         String
+  phone        String?  @unique // xaridorlar telefon bilan kiradi
+  email        String?  @unique // egalar/kassirlar email bilan kiradi
+  passwordHash String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  // Kassir/ega qaysi tashkilotga tegishli
+  organizationId String?
+  organization   Organization? @relation("OrgStaff", fields: [organizationId], references: [id])
+
+  ownedOrganizations Organization[] @relation("OrgOwner")
+  wallets            Wallet[]
+  transactions       Transaction[]
+  purchasesAsCustomer Purchase[] @relation("PurchaseCustomer")
+  purchasesAsCashier  Purchase[] @relation("PurchaseCashier")
+
+  @@index([organizationId])
+}
+
+model Organization {
+  id                String       @id @default(cuid())
+  name              String
+  slug              String       @unique
+  category          String?
+  logoUrl           String?
+  description       String?
+  phone             String?
+  cashbackType      String       @default("PERCENT")
+  cashbackValue     Float        @default(0) // PERCENT: foiz | FIXED: so'm
+  minPurchase       Int          @default(0) // shu summadan kam bo'lsa keshbek yo'q
+  maxCashbackPerTxn Int?         // bitta xaridga keshbek shifti (so'm)
+  redeemEnabled     Boolean      @default(true) // keshbekni ishlatishga ruxsat
+  isActive          Boolean      @default(true) // admin tasdiqladimi
+
+  ownerId String
+  owner   User   @relation("OrgOwner", fields: [ownerId], references: [id])
+
+  staff        User[]        @relation("OrgStaff")
+  branches     Branch[]
+  purchases    Purchase[]
+  wallets      Wallet[]
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+
+  @@index([ownerId])
+}
+
+model Branch {
+  id             String       @id @default(cuid())
+  name           String
+  address        String?
+  isActive       Boolean      @default(true)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  purchases      Purchase[]
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+}
+
+// Xaridorning har bir tashkilotdagi keshbek balansi
+model Wallet {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  balance        Int          @default(0) // so'm
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+}
+
+model Purchase {
+  id             String         @id @default(cuid())
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  branchId       String?
+  branch         Branch?        @relation(fields: [branchId], references: [id])
+
+  cashierId  String
+  cashier    User    @relation("PurchaseCashier", fields: [cashierId], references: [id])
+  customerId String?
+  customer   User?   @relation("PurchaseCustomer", fields: [customerId], references: [id])
+
+  amount         Int            @default(0) // xarid summasi (so'm)
+  cashbackAmount Int            @default(0) // hisoblangan keshbek (so'm)
+  redeemAmount   Int            @default(0) // shu xaridda ishlatilgan keshbek (so'm)
+  status         String         @default("PENDING")
+
+  qrToken   String   @unique // QR ichidagi maxfiy token
+  expiresAt DateTime
+  completedAt DateTime?
+  createdAt DateTime @default(now())
+
+  transactions Transaction[]
+
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([qrToken])
+}
+
+// O'zgarmas moliyaviy jurnal (audit) — har bir keshbek harakati
+model Transaction {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  purchaseId     String?
+  purchase       Purchase?    @relation(fields: [purchaseId], references: [id])
+
+  type         String // EARN | REDEEM | ADJUST
+  amount       Int    // musbat=kirim, manfiy=chiqim (so'm)
+  balanceAfter Int    // harakatdan keyingi balans
+  note         String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+}
