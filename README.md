@@ -23,7 +23,7 @@ xaridorga **5 000 so'm** keshbek qaytadi va balansida ko'rinadi.
 |------|-----------|-------------|-------|
 | **Backend API** | Barcha qismlar uchun yagona yadro | Node.js + TypeScript + Express + Prisma | ✅ MVP tayyor |
 | **Mobil ilova** | Xaridorlar (QR skanerlash, balans) | React Native (Expo) | ✅ MVP tayyor |
-| **Web panel** | Tashkilotlar (kassir, statistika) | React + Vite | 🔜 Keyingi bosqich |
+| **Web panel** | Tashkilotlar (kassir, statistika) | React + Vite | ✅ MVP tayyor |
 | **Desktop (.exe)** | Tashkilotlar (offline kassa) | Electron (web panelni o'raydi) | 🔜 Keyingi bosqich |
 | **Admin panel** | Super admin (tashkilotlar qo'shish) | Web panel ichida | 🔜 Keyingi bosqich |
 
@@ -54,14 +54,25 @@ npm install
 npm start                  # Expo Go bilan skanerlang
 ```
 
+## Boshlash (Web panel — kassir/ega)
+
+```bash
+cd web
+cp .env.example .env       # VITE_API_URL ni backend manziliga sozlang
+npm install
+npm run dev                # http://localhost:5173
+```
+
 To'liq API hujjati: [`docs/API.md`](docs/API.md)
 Arxitektura: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 Mobil ilova: [`mobile/README.md`](mobile/README.md)
+Web panel: [`web/README.md`](web/README.md)
 
 ## Yo'l xaritasi (Roadmap)
 
 - [x] **1-bosqich** — Backend API (auth, tashkilotlar, keshbek, hamyon, QR oqimi)
 - [x] **2-bosqich** — Mobil ilova (Expo): ro'yxatdan o'tish, QR skaner, balans, tarix
-- [ ] **3-bosqich** — Web panel: kassir ekrani, tashkilot statistikasi, admin
+- [x] **3-bosqich** — Web panel: kassir QR ekrani, ega statistikasi, kassirlar, keshbek sozlamalari
+- [ ] **3b-bosqich** — Admin panel (super admin): tashkilotlar qo'shish/tasdiqlash
 - [ ] **4-bosqich** — Desktop (.exe) Electron build
 - [ ] **5-bosqich** — O'sish mexanizmlari: referral, darajalar, push-bildirishnoma, aksiyalar
